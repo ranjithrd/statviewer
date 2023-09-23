@@ -242,7 +242,6 @@ def importJSON(path):
         "performances": performances
     }
 
-
 # connectToDatabase(host="localhost", user="root", password="mysql123", database="pyproj")
 # data = importJSON("/Users/ranjithrd/Downloads/ipl_male_json")
 # data = importJSON("sample_data")
