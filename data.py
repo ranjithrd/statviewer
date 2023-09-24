@@ -77,6 +77,8 @@ def parseMatch(match):
         "balls_cede": [],
         "balls_wickets": [],
 
+        "fall_of_wickets": [],
+
         "win": False,
     }
 
@@ -98,6 +100,9 @@ def parseMatch(match):
             overCede = {}
             overWickets = {}
 
+            overWicketsBatters = 0
+            overWicketsPlayers = {}
+
             teamBat = 0
             teamCede = 0
             teamWickets = 0
@@ -111,6 +116,8 @@ def parseMatch(match):
 
                 if batter not in overBatting:
                     overBatting[batter] = 0
+                if batter not in overWicketsPlayers:
+                    overWicketsPlayers[batter] = 0
                 if bowler not in overCede:
                     overCede[bowler] = 0
                 if bowler not in overWickets:
@@ -147,6 +154,17 @@ def parseMatch(match):
                     overWickets[bowler] += 1
 
                     teamWickets += 1
+
+                    overWicketsBatters += 1
+
+                    player_out = delivery["wickets"][0]["player_out"]
+                    if player_out not in overWicketsPlayers:
+                        overWicketsPlayers[player_out] = 0
+                    overWicketsPlayers[player_out] += 1
+                    
+                    if metadata["date"] == "2008-04-29":
+                        print("Wicket to ", batter)
+                        print(overWicketsPlayers)
                 else:
                     teamPerformance[bowlingTeam]["balls_wickets"].append(0)
                     playerPerformance[bowler]["balls_wickets"].append(0)
@@ -160,6 +178,10 @@ def parseMatch(match):
             for p in overWickets:
                 playerPerformance[p]["overs_wickets"].append(overWickets[p])
 
+            for p in overWicketsPlayers:
+                playerPerformance[p]["fall_of_wickets"].append(overWicketsPlayers[p])
+
+            teamPerformance[battingTeam]["fall_of_wickets"].append(overWicketsBatters)
             teamPerformance[battingTeam]["overs_bat"].append(teamBat)
             teamPerformance[bowlingTeam]["overs_cede"].append(teamCede)
             teamPerformance[bowlingTeam]["overs_wickets"].append(teamWickets)

@@ -2,66 +2,7 @@ import mysql.connector as mysql
 from data import connectToDatabase, db, importJSON
 import json
 from credentials import defaultDatabase
-
-
-def teamMatchRecordToDictionary(i):
-    return {
-        "team_match_id": i[0],
-        "match_id": i[1],
-        "year": i[2],
-        "team": i[3],
-        "win": i[4],
-        "total_bat": i[5],
-        "total_cede": i[6],
-        "total_wickets": i[7],
-        "overs_bat": json.loads(i[8]),
-        "overs_cede": json.loads(i[9]),
-        "overs_wickets": json.loads(i[10]),
-        "balls_bat": json.loads(i[11]),
-        "balls_cede": json.loads(i[12]),
-        "balls_wickets": json.loads(i[13]),
-    }
-
-def matchingYears(start_year, duration = 1, end_year = "", ignoreEndYear = False):
-    order = {
-        1: "2007/08",
-        2: "2009",
-        3: "2009/10",
-        4: "2011",
-        5: "2012",
-        6: "2013",
-        7: "2014",
-        8: "2015",
-        9: "2016",
-        10: "2017",
-        11: "2018",
-        12: "2019",
-        13: "2020/21",
-        14: "2021",
-        15: "2022",
-        16: "2023",
-    }
-
-    orderInverse = {}
-    for i in order:
-        orderInverse[order[i]] = i
-
-    if duration == 1 and end_year == "":
-        return "('%s')"%(start_year)
-    else:
-        start = orderInverse[start_year]
-        if duration != 1 and ignoreEndYear:
-            end = start + duration
-        else:
-            end = orderInverse[end_year]
-
-        r = range(start, end + 1)
-        ret = []
-        for i in r:
-            ret.append("'" + str(order[i]) + "'")
-
-        return "(" + ",".join(ret) + ")"
-
+from aggregate.utils import *
     
 
 def aggregate_team(matches):
@@ -91,7 +32,7 @@ def aggregate_team(matches):
         avg["balls_wickets_sum"].append(0)
 
     for k in matches:
-        i = teamMatchRecordToDictionary(k)
+        i = k
         avg["team"] = i["team"]
 
         if i["year"] not in avg["years"]:
@@ -151,12 +92,12 @@ def aggregate_teams(team1, team2, db, start = "2007/08", duration = 1, end = "20
 
     c1 = db.cursor()
     c1.execute(teamQuery.format(team1, yearList))
-    avg1 = aggregate_team(c1.fetchall())
+    avg1 = aggregate_team(allTeamMatchRecordToDictionary(c1.fetchall()))
     print(json.dumps(avg1, indent=2))
 
     c2 = db.cursor()
     c2.execute(teamQuery.format(team2, yearList))
-    avg2 = aggregate_team(c2.fetchall())
+    avg2 = aggregate_team(allTeamMatchRecordToDictionary(c2.fetchall()))
     print(json.dumps(avg2, indent=2))
 
     open("team1.json", "w").write(json.dumps(avg1))
