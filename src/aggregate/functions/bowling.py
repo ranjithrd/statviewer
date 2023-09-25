@@ -1,6 +1,4 @@
-# balls is list of all balls played
-
-def strikeRate(matches):
+def strike_rate(matches):
     balls = []
     for i in matches:
         balls += i["balls_bat"]

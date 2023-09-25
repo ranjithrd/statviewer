@@ -1,7 +1,7 @@
-import mysql.connector as mysql
-from data import connectToDatabase, db, importJSON
 import json
-from credentials import defaultDatabase
+import mysql.connector as mysql
+from data.parse import importJSON
+from data.credentials import defaultDatabase
 
 
 def initializeDatabase():
@@ -43,7 +43,8 @@ def initializeDatabase():
         balls_bat LONGTEXT,
         balls_cede LONGTEXT,
         balls_wickets LONGTEXT,
-        fall_of_wickets LONGTEXT
+        fall_of_wickets LONGTEXT,
+        over_count INTEGER
     );
     ''')
 
@@ -65,7 +66,8 @@ def initializeDatabase():
         balls_bat LONGTEXT,
         balls_cede LONGTEXT,
         balls_wickets LONGTEXT,
-        fall_of_wickets LONGTEXT
+        fall_of_wickets LONGTEXT,
+        over_count INTEGER
     );
     ''')
 
@@ -86,15 +88,15 @@ def addValues(folderOutput):
 
     for i in folderOutput["teamMatches"]:
         # print(i)
-        cursor.execute("""INSERT INTO teamMatches VALUES ('{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
+        cursor.execute("""INSERT INTO teamMatches VALUES ('{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
                        .format(i["team_match_id"], i["match_id"], i["year"], i["team"], 1 if i["win"] else 0, i["total_bat"], i["total_cede"], i["total_wickets"],
-                               json.dumps(i["overs_bat"]), json.dumps(i["overs_cede"]), json.dumps(i["overs_wickets"]), json.dumps(i["balls_bat"]), json.dumps(i["fall_of_wickets"]), json.dumps(i["balls_cede"]), json.dumps(i["balls_wickets"])))
+                               json.dumps(i["overs_bat"]), json.dumps(i["overs_cede"]), json.dumps(i["overs_wickets"]), json.dumps(i["balls_bat"]), json.dumps(i["fall_of_wickets"]), json.dumps(i["balls_cede"]), json.dumps(i["balls_wickets"]), i["over_count"]))
 
     for i in folderOutput["playerMatches"]:
         # print(i)
-        cursor.execute("""INSERT INTO playerMatches VALUES ('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
+        cursor.execute("""INSERT INTO playerMatches VALUES ('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
                        .format(i["player_match_id"], i["match_id"], i["performance_id"], i["year"], i["player"], i["team"], 1 if i["win"] else 0, i["total_bat"], i["total_cede"], i["total_wickets"],
-                               json.dumps(i["overs_bat"]), json.dumps(i["overs_cede"]), json.dumps(i["overs_wickets"]), json.dumps(i["balls_bat"]), json.dumps(i["balls_cede"]), json.dumps(i["balls_wickets"]), json.dumps(i["fall_of_wickets"])))
+                               json.dumps(i["overs_bat"]), json.dumps(i["overs_cede"]), json.dumps(i["overs_wickets"]), json.dumps(i["balls_bat"]), json.dumps(i["balls_cede"]), json.dumps(i["balls_wickets"]), json.dumps(i["fall_of_wickets"]), i["over_count"]))
 
     for i in folderOutput["performances"]:
         # print(i)
@@ -124,29 +126,15 @@ def dropTables():
     db = defaultDatabase()
     cursor = db.cursor()
 
-    cursor.execute("DROP TABLE playerMatches;")
-    cursor.execute("DROP TABLE teamMatches;")
-    cursor.execute("DROP TABLE performances;")
-    cursor.execute("DROP TABLE matches;")
+    cursor.execute("DROP TABLE IF EXISTS playerMatches;")
+    cursor.execute("DROP TABLE IF EXISTS teamMatches;")
+    cursor.execute("DROP TABLE IF EXISTS performances;")
+    cursor.execute("DROP TABLE IF EXISTS matches;")
 
 
-def resetDatabase():
+def resetDatabase(p):
     dropTables()
     initializeDatabase()
 
     clearValues()
-    addValues(importJSON("latest_sample_data"))
-
-
-if __name__ == "__main__":
-    # initializeDatabase()
-    # connectToDatabase(host="localhost", user="root",
-    #                   password="mysql123", database="pyproj")
-
-    resetDatabase()
-
-    # importJSON("latest_sample_data")
-
-    pass
-
-
+    addValues(importJSON(p))

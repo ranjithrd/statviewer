@@ -80,6 +80,8 @@ def parseMatch(match):
         "fall_of_wickets": [],
 
         "win": False,
+
+        "over_count": 0
     }
 
     teamPerformance = {}
@@ -106,6 +108,8 @@ def parseMatch(match):
             teamBat = 0
             teamCede = 0
             teamWickets = 0
+
+            teamPerformance[battingTeam]["over_count"] += 1
 
             for delivery in over["deliveries"]:
                 totalRuns = delivery["runs"]["total"]
@@ -199,6 +203,9 @@ def parseMatch(match):
         p = playerPerformance[i]
         playerPerformance[i]["performance_id"] = p["team"] + "." + p["player"] + "." + p["year"]
         playerPerformance[i]["player_match_id"] = metadata["match_id"] + "." + i
+
+    for i in matchPlayers[battingTeam]:
+        playerPerformance[i]["over_count"] = teamPerformance[battingTeam]["over_count"]
 
     namedTeamPerformances = {}
     for i in teamPerformance:
