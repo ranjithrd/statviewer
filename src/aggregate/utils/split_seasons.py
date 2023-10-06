@@ -1,4 +1,6 @@
 from aggregate.utils.percentile import percentile
+import aggregate.utils.percentile as percentile
+from data.load import allData
 
 # TAKES MATCHES AND A VALUE FUNCTION THAT RETURNS ANY VALUE FOR SEASON
 
@@ -22,5 +24,13 @@ def splitAcrossSeasons(valueFunction, matches):
 
 
 def splitPercentileAcrossSeasons(valueFunction, matches, allMatches):
-    splitFunction = lambda m : percentile(valueFunction, m, allMatches)
+    splitFunction = lambda m : percentile.percentile(valueFunction, m, allMatches)
     return splitAcrossSeasons(splitFunction, matches)
+
+def generateDataPoints(dataFunction, matches, key, ad):
+    return {
+        "%s"%(key,): dataFunction(matches),
+        "%s_percentile"%(key,): percentile.percentile(lambda m: dataFunction(m), matches, ad),
+        "%s_split_seasons"%(key,): splitAcrossSeasons(dataFunction, matches),
+        "%s_percentile_split_seasons"%(key,): splitPercentileAcrossSeasons(dataFunction, matches, ad)
+    }

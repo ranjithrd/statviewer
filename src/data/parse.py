@@ -25,6 +25,12 @@ TeamNames = {
     'Rising Pune Supergiant': 'RPS'
 }
 
+CityNamesOverrides = {
+    "Bengaluru": "Bangalore",
+    "Dubai International Cricket Stadium": "Dubai",
+    "Sharjah Cricket Stadium": "Sharjah"
+}
+
 
 def connectToDatabase(host, user, password, database):
     global db
@@ -54,12 +60,19 @@ def parseMatch(match):
         print("NO VALID WINNER")
         print(match)
 
+    if "city" not in match["info"]:
+        match["info"]["city"] = match["info"]["venue"]
+
     metadata = {
         "date": match["info"]["dates"][0],
         "year": str(match["info"]["season"]),
         "number": identifier,
-        "winner": winner
+        "winner": winner,
+        "city": match["info"]["city"]
     }
+
+    if metadata["city"] in CityNamesOverrides:
+        metadata["city"] = CityNamesOverrides[metadata["city"]]
 
     metadata["match_id"] = str(metadata["year"]) + \
         "." + str(metadata["number"]) + "." + str(metadata["date"])
@@ -165,10 +178,6 @@ def parseMatch(match):
                     if player_out not in overWicketsPlayers:
                         overWicketsPlayers[player_out] = 0
                     overWicketsPlayers[player_out] += 1
-                    
-                    if metadata["date"] == "2008-04-29":
-                        print("Wicket to ", batter)
-                        print(overWicketsPlayers)
                 else:
                     teamPerformance[bowlingTeam]["balls_wickets"].append(0)
                     playerPerformance[bowler]["balls_wickets"].append(0)
@@ -183,9 +192,11 @@ def parseMatch(match):
                 playerPerformance[p]["overs_wickets"].append(overWickets[p])
 
             for p in overWicketsPlayers:
-                playerPerformance[p]["fall_of_wickets"].append(overWicketsPlayers[p])
+                playerPerformance[p]["fall_of_wickets"].append(
+                    overWicketsPlayers[p])
 
-            teamPerformance[battingTeam]["fall_of_wickets"].append(overWicketsBatters)
+            teamPerformance[battingTeam]["fall_of_wickets"].append(
+                overWicketsBatters)
             teamPerformance[battingTeam]["overs_bat"].append(teamBat)
             teamPerformance[bowlingTeam]["overs_cede"].append(teamCede)
             teamPerformance[bowlingTeam]["overs_wickets"].append(teamWickets)
@@ -201,11 +212,16 @@ def parseMatch(match):
         playerPerformance[i]["year"] = metadata["year"]
         playerPerformance[i]["match_id"] = metadata["match_id"]
         p = playerPerformance[i]
-        playerPerformance[i]["performance_id"] = p["team"] + "." + p["player"] + "." + p["year"]
+        playerPerformance[i]["performance_id"] = p["team"] + \
+            "." + p["player"] + "." + p["year"]
         playerPerformance[i]["player_match_id"] = metadata["match_id"] + "." + i
 
     for i in matchPlayers[battingTeam]:
         playerPerformance[i]["over_count"] = teamPerformance[battingTeam]["over_count"]
+
+    # city
+    for i in teamPerformance:
+        teamPerformance[i]["toss_won"] = i == match["info"]["toss"]["winner"]
 
     namedTeamPerformances = {}
     for i in teamPerformance:
@@ -213,7 +229,9 @@ def parseMatch(match):
         namedTeamPerformances[TeamNames[i]]["team"] = TeamNames[i]
         namedTeamPerformances[TeamNames[i]]["year"] = metadata["year"]
         namedTeamPerformances[TeamNames[i]]["match_id"] = metadata["match_id"]
-        namedTeamPerformances[TeamNames[i]]["team_match_id"] = metadata["match_id"] + "." + TeamNames[i]
+        namedTeamPerformances[TeamNames[i]]["city"] = metadata["city"]
+        namedTeamPerformances[TeamNames[i]
+                              ]["team_match_id"] = metadata["match_id"] + "." + TeamNames[i]
 
     if metadata["winner"] != "":
         metadata["winner"] = TeamNames[metadata["winner"]]

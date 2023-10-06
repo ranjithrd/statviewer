@@ -2,6 +2,10 @@ import json
 import mysql.connector as mysql
 from data.parse import importJSON
 from data.credentials import defaultDatabase
+from aggregate.utils.utils import allTeamMatchRecordToDictionary, allPlayerMatchRecordToDictionary
+
+allTeamMatches = []
+allPlayerMatches = []
 
 
 def initializeDatabase():
@@ -44,7 +48,9 @@ def initializeDatabase():
         balls_cede LONGTEXT,
         balls_wickets LONGTEXT,
         fall_of_wickets LONGTEXT,
-        over_count INTEGER
+        over_count INTEGER,
+        city VARCHAR(50),
+        toss_won BOOLEAN
     );
     ''')
 
@@ -88,15 +94,51 @@ def addValues(folderOutput):
 
     for i in folderOutput["teamMatches"]:
         # print(i)
-        cursor.execute("""INSERT INTO teamMatches VALUES ('{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
-                       .format(i["team_match_id"], i["match_id"], i["year"], i["team"], 1 if i["win"] else 0, i["total_bat"], i["total_cede"], i["total_wickets"],
-                               json.dumps(i["overs_bat"]), json.dumps(i["overs_cede"]), json.dumps(i["overs_wickets"]), json.dumps(i["balls_bat"]), json.dumps(i["fall_of_wickets"]), json.dumps(i["balls_cede"]), json.dumps(i["balls_wickets"]), i["over_count"]))
+        cursor.execute("""INSERT INTO teamMatches VALUES ('{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {})"""
+                       .format(
+                           i["team_match_id"],
+                           i["match_id"],
+                           i["year"],
+                           i["team"],
+                           1 if i["win"] else 0,
+                           i["total_bat"],
+                           i["total_cede"],
+                           i["total_wickets"],
+                           json.dumps(i["overs_bat"]),
+                           json.dumps(i["overs_cede"]),
+                           json.dumps(i["overs_wickets"]),
+                           json.dumps(i["balls_bat"]),
+                           json.dumps(i["balls_cede"]),
+                           json.dumps(i["balls_wickets"]),
+                           json.dumps(i["fall_of_wickets"]),
+                           i["over_count"],
+                           i["city"],
+                           1 if i["toss_won"] else 0
+                       ))
 
     for i in folderOutput["playerMatches"]:
         # print(i)
         cursor.execute("""INSERT INTO playerMatches VALUES ('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
-                       .format(i["player_match_id"], i["match_id"], i["performance_id"], i["year"], i["player"], i["team"], 1 if i["win"] else 0, i["total_bat"], i["total_cede"], i["total_wickets"],
-                               json.dumps(i["overs_bat"]), json.dumps(i["overs_cede"]), json.dumps(i["overs_wickets"]), json.dumps(i["balls_bat"]), json.dumps(i["balls_cede"]), json.dumps(i["balls_wickets"]), json.dumps(i["fall_of_wickets"]), i["over_count"]))
+                       .format(
+                           i["player_match_id"],
+                           i["match_id"],
+                           i["performance_id"],
+                           i["year"],
+                           i["player"],
+                           i["team"],
+                           1 if i["win"] else 0,
+                           i["total_bat"],
+                           i["total_cede"],
+                           i["total_wickets"],
+                           json.dumps(i["overs_bat"]),
+                           json.dumps(i["overs_cede"]),
+                           json.dumps(i["overs_wickets"]),
+                           json.dumps(i["balls_bat"]),
+                           json.dumps(i["balls_cede"]),
+                           json.dumps(i["balls_wickets"]),
+                           json.dumps(i["fall_of_wickets"]),
+                           i["over_count"]
+                       ))
 
     for i in folderOutput["performances"]:
         # print(i)
@@ -138,3 +180,29 @@ def resetDatabase(p):
 
     clearValues()
     addValues(importJSON(p))
+
+
+def allData():
+    global allTeamMatches
+
+    if len(allTeamMatches) < 10:
+        db = defaultDatabase()
+        c = db.cursor()
+        c.execute("SELECT * FROM teamMatches;")
+        allTeamMatches = allTeamMatchRecordToDictionary(c.fetchall())
+        db.close()
+
+    return allTeamMatches
+
+
+def allPlayers():
+    global allPlayerMatches
+
+    if len(allPlayerMatches) < 10:
+        db = defaultDatabase()
+        c = db.cursor()
+        c.execute("SELECT * FROM playerMatches;")
+        allPlayerMatches = allPlayerMatchRecordToDictionary(c.fetchall())
+        db.close()
+
+    return allPlayerMatches

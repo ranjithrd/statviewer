@@ -1,7 +1,12 @@
 def calculatePercentile(value, data):
     sortedData = sorted(data)
 
-    return 100 * ((sortedData.index(value) + 1) / len(data))
+    if value not in sortedData:
+        # simulate index
+        data.append(value)
+        sortedData = sorted(data)
+
+    return round(100 * ((sortedData.index(value) + 1) / len(data)))
 
 # VALUE_FUNCTION MUST TAKE THE RECORD AND
 # *NOT AN INDIVIDUAL ATTRIBUTE*
