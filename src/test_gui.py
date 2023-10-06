@@ -1,3 +1,3 @@
-from app.window import main
+from app.experiments.window import main
 
 main()
