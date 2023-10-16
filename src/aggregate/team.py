@@ -1,10 +1,10 @@
 import mysql.connector as mysql
-from aggregate.utils.utils import *
-import aggregate.functions.batting as batting
-import aggregate.functions.bowling as bowling
-import aggregate.utils.percentile as percentile
-from aggregate.utils.split_seasons import generateDataPoints, splitAcrossSeasons
-from data.load import allData
+from src.aggregate.utils.utils import *
+import src.aggregate.functions.batting as batting
+import src.aggregate.functions.bowling as bowling
+import src.aggregate.utils.percentile as percentile
+from src.aggregate.utils.split_seasons import generateDataPoints, splitAcrossSeasons
+from src.data.load import allData
 
 def aggregate_team(matches):
     print(len(matches))
@@ -222,14 +222,12 @@ def fetch_and_aggregate_team(team, db, start="2007/08", duration=1, end="2023"):
 
     output = c.fetchall()
     vals = []
-    # print(sorted(output, reverse=True))
 
     for i in output:
-        # print(bool(i))
         if i:
             vals.append(i)
         else:
-            print("ignored", i)
+            print("ignored")
 
     average = aggregate_team(allTeamMatchRecordToDictionary(vals))
 

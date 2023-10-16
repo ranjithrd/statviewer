@@ -1,8 +1,8 @@
 import mysql.connector as mysql
-from data import connectToDatabase, db, importJSON
+from src.data import connectToDatabase, db, importJSON
 import json
 from credentials import defaultDatabase
-from aggregate.utils import *
+from src.aggregate.utils import *
     
 
 def aggregate_team(matches):

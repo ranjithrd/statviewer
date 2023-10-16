@@ -1,8 +1,15 @@
+import pkgutil
+search_path = ['.'] # set to None to see all modules importable from sys.path
+all_modules = [x[1] for x in pkgutil.iter_modules(path=search_path)]
+print(all_modules)
+
+
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout, QWidget, QListWidget
+from src.data.metadata import dbPlayers
 
 # Create a list of names
-names = ["Abhinav", "Ranjit", "Amish", "Shobha", "Ronaldo"]
+names = dbPlayers()
 
 class SearchNameWindow(QMainWindow):
     def __init__(self):
@@ -53,6 +60,11 @@ class SearchNameWindow(QMainWindow):
         selected_name = item.text()
         print(f"Selected name: {selected_name}")
         self.close()  # Close the window
+
+def playerSearchWindow(app):
+    window = SearchNameWindow()
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

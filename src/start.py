@@ -1,5 +1,4 @@
 import sys
-# import data
 from PySide6.QtWidgets import QApplication, QPushButton, QDialog, QLineEdit, QVBoxLayout
 from PySide6.QtCore import Slot
 

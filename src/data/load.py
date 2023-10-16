@@ -1,8 +1,8 @@
 import json
 import mysql.connector as mysql
-from data.parse import importJSON
-from data.credentials import defaultDatabase
-from aggregate.utils.utils import allTeamMatchRecordToDictionary, allPlayerMatchRecordToDictionary
+from src.data.parse import importJSON
+from src.data.credentials import defaultDatabase
+from src.aggregate.utils.utils import allTeamMatchRecordToDictionary, allPlayerMatchRecordToDictionary
 
 allTeamMatches = []
 allPlayerMatches = []
@@ -13,12 +13,31 @@ def initializeDatabase():
     cursor = db.cursor()
 
     cursor.execute('''
+    CREATE TABLE IF NOT EXISTS years (
+        year VARCHAR(25) PRIMARY KEY
+    );
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS players (
+        player VARCHAR(45) PRIMARY KEY
+    );
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS teams (
+        team VARCHAR(25) PRIMARY KEY
+    );
+    ''')
+
+    cursor.execute('''
     CREATE TABLE IF NOT EXISTS matches (
         match_id VARCHAR(50) PRIMARY KEY,
         date DATE,
-        year VARCHAR(10),
+        year VARCHAR(25),
         number VARCHAR(20),
-        winner VARCHAR(25)
+        winner VARCHAR(25),
+        FOREIGN KEY (year) REFERENCES years(year)
     );
     ''')
 
@@ -27,14 +46,17 @@ def initializeDatabase():
         performance_id VARCHAR(50) PRIMARY KEY,
         team VARCHAR(25),
         year VARCHAR(25),
-        player VARCHAR(45)
+        player VARCHAR(45),
+        FOREIGN KEY (year) REFERENCES years(year),
+        FOREIGN KEY (team) REFERENCES teams(team),
+        FOREIGN KEY (player) REFERENCES players(player)
     );
     ''')
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS teamMatches(
         team_match_id VARCHAR(50) PRIMARY KEY,
-        match_id VARCHAR(50) REFERENCES matches(match_id),
+        match_id VARCHAR(50),
         year VARCHAR(25),
         team VARCHAR(25),
         win BOOLEAN,
@@ -50,7 +72,10 @@ def initializeDatabase():
         fall_of_wickets LONGTEXT,
         over_count INTEGER,
         city VARCHAR(50),
-        toss_won BOOLEAN
+        toss_won BOOLEAN,
+        FOREIGN KEY (team) REFERENCES teams(team),
+        FOREIGN KEY (year) REFERENCES years(year),
+        FOREIGN KEY (match_id) REFERENCES matches(match_id)  
     );
     ''')
 
@@ -59,8 +84,8 @@ def initializeDatabase():
         player_match_id VARCHAR(100) PRIMARY KEY,
         match_id VARCHAR(50) REFERENCES matches(match_id),
         performance_id VARCHAR(50) REFERENCES performances(performance_id),
-        year VARCHAR(25),
-        player VARCHAR(45),
+        year VARCHAR(25) REFERENCES years(year),
+        player VARCHAR(45) REFERENCES players(player),
         team VARCHAR(25),
         win BOOLEAN,
         total_bat INTEGER,
@@ -73,7 +98,11 @@ def initializeDatabase():
         balls_cede LONGTEXT,
         balls_wickets LONGTEXT,
         fall_of_wickets LONGTEXT,
-        over_count INTEGER
+        over_count INTEGER,
+        FOREIGN KEY (team) REFERENCES teams(team),
+        FOREIGN KEY (year) REFERENCES years(year),
+        FOREIGN KEY (player) REFERENCES players(player),
+        FOREIGN KEY (match_id) REFERENCES matches(match_id)
     );
     ''')
 
@@ -83,12 +112,20 @@ def addValues(folderOutput):
 
     cursor = db.cursor()
 
-    existingMetadataCursor = db.cursor()
-    existingMetadataCursor.execute("SELECT match_id FROM matches;")
-    existingMetadataValues = list(existingMetadataCursor.fetchall())
+    # existingMetadataCursor = db.cursor()
+    # existingMetadataCursor.execute("SELECT match_id FROM matches;")
+    # existingMetadataValues = list(existingMetadataCursor.fetchall())
+
+    for i in folderOutput["teams"]:
+        cursor.execute("""INSERT INTO teams VALUES ('{}');""".format(i))
+
+    for i in folderOutput["years"]:
+        cursor.execute("""INSERT INTO years VALUES ('{}');""".format(i))
+
+    for i in folderOutput["players"]:
+        cursor.execute("""INSERT INTO players VALUES ('{}');""".format(i))
+
     for i in folderOutput["metadata"]:
-        # print((i,) in existingMetadataValues)
-        print(i["match_id"])
         cursor.execute("""INSERT INTO matches VALUES ('{}', '{}', '{}', '{}', '{}');""".format(
             i["match_id"], i["date"], i["year"], i["number"], i["winner"]))
 
@@ -147,7 +184,7 @@ def addValues(folderOutput):
 
     db.commit()
 
-    print("Added values for", folderOutput)
+    print("Added values")
 
 
 def clearValues():
@@ -172,6 +209,8 @@ def dropTables():
     cursor.execute("DROP TABLE IF EXISTS teamMatches;")
     cursor.execute("DROP TABLE IF EXISTS performances;")
     cursor.execute("DROP TABLE IF EXISTS matches;")
+    cursor.execute("DROP TABLE IF EXISTS years;")
+    cursor.execute("DROP TABLE IF EXISTS players;")
 
 
 def resetDatabase(p):

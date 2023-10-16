@@ -1,6 +1,6 @@
-from aggregate.utils.percentile import percentile
-import aggregate.utils.percentile as percentile
-from data.load import allData
+from src.aggregate.utils.percentile import percentile
+import src.aggregate.utils.percentile as percentile
+from src.data.load import allData
 
 # TAKES MATCHES AND A VALUE FUNCTION THAT RETURNS ANY VALUE FOR SEASON
 

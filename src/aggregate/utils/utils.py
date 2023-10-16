@@ -106,7 +106,6 @@ def groupByTeams(matches):
     for i in matches:
         if i["team"] not in r:
             r[i["team"]] = []
-            print(i["team"])
 
         r[i["team"]].append(i)
 

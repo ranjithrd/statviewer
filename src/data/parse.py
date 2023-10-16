@@ -49,7 +49,7 @@ def parseMatch(match):
         identifier = str(match["info"]["event"]["match_number"])
     else:
         print("NO VALID ID FOR MATCH")
-        print(match)
+        # print(match)
 
     winner = ""
     if "result" in match["info"]["outcome"] and match["info"]["outcome"]["result"] in "tie no result":
@@ -58,7 +58,7 @@ def parseMatch(match):
         winner = match["info"]["outcome"]["winner"]
     else:
         print("NO VALID WINNER")
-        print(match)
+        # print(match)
 
     if "city" not in match["info"]:
         match["info"]["city"] = match["info"]["venue"]
@@ -68,7 +68,9 @@ def parseMatch(match):
         "year": str(match["info"]["season"]),
         "number": identifier,
         "winner": winner,
-        "city": match["info"]["city"]
+        "city": match["info"]["city"],
+        "players": [],
+        "teams": teams,
     }
 
     if metadata["city"] in CityNamesOverrides:
@@ -101,6 +103,8 @@ def parseMatch(match):
     playerPerformance = {}
     for i in matchPlayers:
         for j in matchPlayers[i]:
+            if j not in metadata["players"]:
+                metadata["players"].append(j)
             playerPerformance[j] = json.loads(json.dumps(PerformanceDefault))
             playerPerformance[j]["team"] = i
     for i in matchPlayers.keys():
@@ -252,7 +256,6 @@ def importJSON(path):
     matchPlayerPerformances = []
 
     for fileName in files.iterdir():
-
         if "json" not in fileName.__str__()[-7:]:
             continue
 
@@ -281,8 +284,27 @@ def importJSON(path):
             performancesDict[key]["matches"].append(i["match_id"])
     performances = list(performancesDict.values())
 
+    players = []
+    years = []
+    teams = []
+
+    for i in matchMetadata:
+        if i["year"] not in years:
+            years.append(i["year"])
+
+        for j in i["players"]:
+            if j not in players:
+                players.append(j)
+
+        for j in i["teams"]:
+            if TeamNames[j] not in teams:
+                teams.append(TeamNames[j])
+
     # return (matchMetadata, matchTeamPerformances, matchPlayerPerformances, performances)
     return {
+        "players": players,
+        "years": years,
+        "teams": teams,
         "metadata": matchMetadata,
         "teamMatches": matchTeamPerformances,
         "playerMatches": matchPlayerPerformances,

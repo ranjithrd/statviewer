@@ -1,4 +1,4 @@
-from data import parseMatch
+from src.data import parseMatch
 import json
 import pathlib
 
