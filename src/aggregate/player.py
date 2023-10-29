@@ -22,7 +22,9 @@ def aggregate_player(matches):
         "balls_wickets_sum": [],
         "years": [],
         "recorded_matches": len(matches),
-        "wickets_as_of_ball": [0]
+        "wickets_as_of_ball": [0],
+        "bat_as_of_ball": [0],
+        "cede_as_of_ball": [0]
     }
 
     for _ in range(30):
@@ -93,6 +95,14 @@ def aggregate_player(matches):
     for j in range(200):
         avg["wickets_as_of_ball"].append(
             avg["wickets_as_of_ball"][-1] + round(avg["balls_wickets_avg"][j], 2))
+
+    for j in range(200):
+        avg["bat_as_of_ball"].append(
+            avg["bat_as_of_ball"][-1] + round(avg["balls_bat_avg"][j], 2))
+    
+    for j in range(200):
+        avg["cede_as_of_ball"].append(
+            avg["cede_as_of_ball"][-1] + round(avg["cede_as_of_ball"][j], 2))
 
     ad = groupByPlayer(allPlayers()).values()
 

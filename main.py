@@ -1,5 +1,4 @@
 from src.test_gui import main
-
 main()
 
 # import json
@@ -17,8 +16,8 @@ main()
 #     # TEST AGGREGATE
 #     db = defaultDatabase()
 #     # avg = fetch_and_aggregate_team("RCB", db, end="2023")
-#     # avg = fetch_and_aggregate_player("MA Wood", db, end="2023")
-#     avg = fetch_and_aggregate_custom_team(["MA Wood", "V Kohli", "Mohammed Siraj"], db, end="2023")
+#     avg = fetch_and_aggregate_player("V Kohli", db, end="2023")
+#     # avg = fetch_and_aggregate_custom_team(["MA Wood", "V Kohli", "Mohammed Siraj"], db, end="2023")
 #     # print(json.dumps(avg, indent=2))
 #     json.dump(avg, open("sample_data/testpy.json", "w"))
 
