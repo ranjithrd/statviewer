@@ -1,8 +1,12 @@
-from src.app.player_search import playerSearchWindow
+from src.app.home import MainWindow
 import sys
 from PySide6.QtWidgets import QApplication
 
 def main():
     app = QApplication(sys.argv)
-    playerSearchWindow(app)
-    sys.exit(app.exec_())
+
+    app.setStyleSheet("* { font-family: 'Barlow'}")
+
+    w = MainWindow()
+    w.show()
+    app.exec_()

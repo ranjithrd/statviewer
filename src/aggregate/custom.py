@@ -47,7 +47,7 @@ def aggregate_custom_team(matches):
             avg["total_matches_won"] += 1
 
     avg.update({
-        "percentage_matches_won": round(100 * (avg["total_matches_won"] / avg["total_ma, 2tches_played"])),
+        "percentage_matches_won": round(100 * (avg["total_matches_won"] / avg["total_matches_played"])),
         # "percentage_matches_won_split_seasons": splitAcrossSeasons(percentage_matches, matches)
     })
 

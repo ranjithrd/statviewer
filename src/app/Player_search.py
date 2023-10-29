@@ -5,25 +5,40 @@ print(all_modules)
 
 
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QLineEdit, QVBoxLayout, QWidget, QListWidget
+from PySide6.QtWidgets import QApplication, QWidget, QLineEdit, QVBoxLayout, QWidget, QListWidget
 from src.data.metadata import dbPlayers
+from src.app.player import PlayerWindow
 
 # Create a list of names
 names = dbPlayers()
 
-class SearchNameWindow(QMainWindow):
-    def __init__(self):
+# Save selected name/s
+selectedNames = []
+
+openWindow = None
+
+class SearchNameWindow(QWidget):
+
+    compare = False
+    secondTime = False
+
+    def __init__(self, compare = False, secondTime = False):
         super().__init__()
+
+        self.compare = compare
+        self.secondTime = secondTime
 
         # Set window properties
         self.setWindowTitle("Search Name Window")
         self.setGeometry(100, 100, 400, 300)
 
         # Create a central widget and layout
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        # central_widget = QWidget()
+        # self.setCentralWidget(central_widget)
+        # central_widget.setLayout(layout)
+
         layout = QVBoxLayout()
-        central_widget.setLayout(layout)
+        self.setLayout(layout)
 
         # Create a search bar (QLineEdit)
         self.search_bar = QLineEdit()
@@ -56,18 +71,15 @@ class SearchNameWindow(QMainWindow):
             self.list_widget.addItems(names)
 
     def itemClicked(self, item):
+        global openWindow
+        
         # Get the selected name from the clicked item
         selected_name = item.text()
-        print(f"Selected name: {selected_name}")
-        self.close()  # Close the window
+        selectedNames.append(selected_name)
 
-def playerSearchWindow(app):
-    window = SearchNameWindow()
-    window.show()
-    sys.exit(app.exec_())
+        if not self.compare:
+            openWindow = PlayerWindow(selectedNames)
+            openWindow.show()
+            self.close()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = SearchNameWindow()
-    window.show()
-    sys.exit(app.exec_())
+        # self.close()  # Close the window
