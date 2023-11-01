@@ -1,4 +1,5 @@
-from src.test_gui import main
+from src.gui import main
+
 main()
 
 # import json

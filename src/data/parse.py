@@ -31,13 +31,6 @@ CityNamesOverrides = {
     "Sharjah Cricket Stadium": "Sharjah"
 }
 
-
-def connectToDatabase(host, user, password, database):
-    global db
-    db = mysql.connect(host=host, user=user,
-                       password=password, database=database)
-
-
 def parseMatch(match):
     matchPlayers = match["info"]["players"]
     teams = list(matchPlayers.keys())
@@ -49,7 +42,6 @@ def parseMatch(match):
         identifier = str(match["info"]["event"]["match_number"])
     else:
         print("NO VALID ID FOR MATCH")
-        # print(match)
 
     winner = ""
     if "result" in match["info"]["outcome"] and match["info"]["outcome"]["result"] in "tie no result":
@@ -58,7 +50,6 @@ def parseMatch(match):
         winner = match["info"]["outcome"]["winner"]
     else:
         print("NO VALID WINNER")
-        # print(match)
 
     if "city" not in match["info"]:
         match["info"]["city"] = match["info"]["venue"]
@@ -310,11 +301,3 @@ def importJSON(path):
         "playerMatches": matchPlayerPerformances,
         "performances": performances
     }
-
-# connectToDatabase(host="localhost", user="root", password="mysql123", database="pyproj")
-# data = importJSON("/Users/ranjithrd/Downloads/ipl_male_json")
-# data = importJSON("sample_data")
-# print(parseMatch(data[0]))
-# a = parseMatch(data[0])
-
-# print(a)

@@ -2,9 +2,8 @@
 
 https://cricsheet.org/downloads/ipl_json.zip
 
-download into this folder as latest_sample_data
-
-run init.py
+Download into this folder as latest_sample_data.
+Run init.py.
 
 
 # DATA POINTS

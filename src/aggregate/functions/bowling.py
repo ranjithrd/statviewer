@@ -48,7 +48,7 @@ def wickets_taken(matches):
 
     return w
 
-def overs_balled(matches):
+def overs_bowled(matches):
     overs = []
     for i in matches:
         overs += i["overs_cede"]

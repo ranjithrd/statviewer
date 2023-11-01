@@ -7,7 +7,7 @@ from src.aggregate.utils.split_seasons import generateDataPoints, splitAcrossSea
 from src.data.load import allPlayers
 
 def aggregate_player(matches):
-    print(len(matches))
+    print(len(matches), "matches")
     avg = {
         "total_wins": 0,
         "bat_avg": 0,
@@ -117,8 +117,8 @@ def aggregate_player(matches):
                matches, "bowling_runs_conceded", ad))
     avg.update(generateDataPoints(bowling.wickets_taken,
                matches, "bowling_wickets_taken", ad))
-    avg.update(generateDataPoints(bowling.overs_balled,
-               matches, "bowling_overs_balled", ad))
+    avg.update(generateDataPoints(bowling.overs_bowled,
+               matches, "bowling_overs_bowled", ad))
     avg.update(generateDataPoints(bowling.five_wicket_hauls,
                matches, "bowling_five_wicket_hauls", ad))
 
@@ -205,6 +205,9 @@ def fetch_and_aggregate_player(player, db, start="2007/08", duration=1, end="202
             vals.append(i)
         else:
             print("ignored")
+        
+    if len(vals) == 0:
+        return {}
 
     average = aggregate_player(allPlayerMatchRecordToDictionary(vals))
 

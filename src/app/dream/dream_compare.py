@@ -1,25 +1,28 @@
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QWidget, QLineEdit, QGridLayout, QWidget, QListWidget, QLabel, QPushButton, QScrollArea, QFrame, QButtonGroup, QVBoxLayout
 from src.data.metadata import dbPlayers
-from src.aggregate.data_points import dataPoints, dataPointsWhere
+from src.aggregate.data_points import customTeamDataPoints, dataPointsWhere
 from src.app.utils import getScreenSize
 from src.app.chart import ChartDataPoints
-from src.aggregate.player import fetch_and_aggregate_player
+from src.aggregate.custom import fetch_and_aggregate_custom_team
 from src.data.credentials import defaultDatabase
 
-class PlayerWindow(QWidget):
+class DreamCompareWindow(QWidget):
     selectedName = ""
-    playerDataPoints = dict(dataPoints)
+    selectedName2 = ""
+    dreamDataPoints = dict(customTeamDataPoints)
     buttonState = {}
 
-    def __init__(self, selectedNames, startDates, endDates):
+    def __init__(self, team1, team2):
         super().__init__()
 
-        self.selectedName = selectedNames[0]
-        self.aggregate = fetch_and_aggregate_player(self.selectedName, defaultDatabase(), startDates[0], end=endDates[0])
-        self.dateRangeText = " (" + startDates[0] + " - " + endDates[0] + ")"
+        self.team1 = team1
+        self.team2 = team2
+
+        self.aggregate1 = fetch_and_aggregate_custom_team(team1, defaultDatabase(), start="2007/08", end="2023")
+        self.aggregate2 = fetch_and_aggregate_custom_team(team2, defaultDatabase(), start="2007/08", end="2023")
 
         # CONFIG
-        self.setWindowTitle(selectedNames[0])
+        self.setWindowTitle("Compare Teams")
         size = getScreenSize()
         self.resize(size[0]*0.8, size[1]*1)
 
@@ -27,9 +30,10 @@ class PlayerWindow(QWidget):
         self.gridLayout = QGridLayout()
         self.setLayout(self.gridLayout)
 
-        self.gridLayout.setRowStretch(7, 100000)
+        self.gridLayout.setRowStretch(8, 100000)
+        # self.gridLayout.setColumnStretch(2)
 
-        if self.aggregate != {}:
+        if self.aggregate1 != {} and self.aggregate2 != {}:
             self.renderBase()
             self.renderButtons()
             self.renderCharts()
@@ -39,10 +43,20 @@ class PlayerWindow(QWidget):
 
     def renderBase(self):
         # Create a label to display the text
-        label = QLabel(self.selectedName + self.dateRangeText)
-        label.setStyleSheet("font: bold 36px;")
+        label = QLabel("Comparing Custom Teams")
+        label.setStyleSheet("font: bold 30px;")
         label.setContentsMargins(10, 10, 10, 16)
-        self.gridLayout.addWidget(label, 1, 1)
+        self.gridLayout.addWidget(label, 1, 0)
+
+        label1 = QLabel("Team 1")
+        label1.setStyleSheet("font: bold 16px;")
+        label1.setContentsMargins(10, 10, 10, 16)
+        self.gridLayout.addWidget(label1, 7, 0)
+
+        label2 = QLabel("Team 2" )
+        label2.setStyleSheet("font: bold 16px;")
+        label2.setContentsMargins(10, 10, 10, 16)
+        self.gridLayout.addWidget(label2, 7, 5)
 
     def destroyButtons(self):
         self.cat_buttons_layout.deleteLater()
@@ -51,8 +65,8 @@ class PlayerWindow(QWidget):
         self.commonScroll.deleteLater()
 
     def onAllClick(self):
-        for i in self.playerDataPoints:
-            self.playerDataPoints[i][1] = not self.buttonState["all"]
+        for i in self.dreamDataPoints:
+            self.dreamDataPoints[i][1] = not self.buttonState["all"]
         for i in self.buttonState:
             if i == "all":
                 continue
@@ -78,56 +92,59 @@ class PlayerWindow(QWidget):
         self.cat_buttons_layout.addWidget(bowling_button)
         common_button = self.generateDatapointButton("Common", self.generateDatapointLambda("common", 0, "common", True), self.buttonState["common"])
         self.cat_buttons_layout.addWidget(common_button)
-        self.gridLayout.addLayout(self.cat_buttons_layout, 3, 1, 1, 8)
+        self.gridLayout.addLayout(self.cat_buttons_layout, 3, 0, 1, 10)
 
         # BATTING
         self.batting_buttons_layout = QHBoxLayout()
-        for i in dataPointsWhere(self.playerDataPoints, 0, "batting"):
-            if self.playerDataPoints[i][3] != i:
+        for i in dataPointsWhere(self.dreamDataPoints, 0, "batting"):
+            if self.dreamDataPoints[i][3] != i:
                 continue
-            btn = self.generateDatapointButton(i, self.generateDatapointLambda(i, 3, i, True), self.playerDataPoints[i][1])
+            btn = self.generateDatapointButton(i, self.generateDatapointLambda(i, 3, i, True), self.dreamDataPoints[i][1])
             self.batting_buttons_layout.addWidget(btn)
         self.battingInner = QWidget()
         self.battingInner.setLayout(self.batting_buttons_layout)
         self.battingScroll = QScrollArea()
         self.battingScroll.setWidgetResizable(True)
         self.battingScroll.setWidget(self.battingInner)
-        self.gridLayout.addWidget(self.battingScroll, 4, 1, 1, 8)
+        self.gridLayout.addWidget(self.battingScroll, 4, 0, 1, 10)
 
         # BOWLING
         self.bowling_buttons_layout = QHBoxLayout()
-        for i in dataPointsWhere(self.playerDataPoints, 0, "bowling"):
-            if self.playerDataPoints[i][3] != i:
+        for i in dataPointsWhere(self.dreamDataPoints, 0, "bowling"):
+            if self.dreamDataPoints[i][3] != i:
                 continue
-            btn = self.generateDatapointButton(i, self.generateDatapointLambda(i, 3, i, True), self.playerDataPoints[i][1])
+            btn = self.generateDatapointButton(i, self.generateDatapointLambda(i, 3, i, True), self.dreamDataPoints[i][1])
             self.bowling_buttons_layout.addWidget(btn)
         self.bowling_inner = QWidget()
         self.bowling_inner.setLayout(self.bowling_buttons_layout)
         self.bowlingScroll = QScrollArea()
         self.bowlingScroll.setWidgetResizable(True)
         self.bowlingScroll.setWidget(self.bowling_inner)
-        self.gridLayout.addWidget(self.bowlingScroll, 5, 1, 1, 8)
+        self.gridLayout.addWidget(self.bowlingScroll, 5, 0, 1, 10)
 
         # COMMON
         self.common_buttons_layout = QHBoxLayout()
-        for i in dataPointsWhere(self.playerDataPoints, 0, "common"):
-            if self.playerDataPoints[i][3] != i:
+        for i in dataPointsWhere(self.dreamDataPoints, 0, "common"):
+            if self.dreamDataPoints[i][3] != i:
                 continue
-            btn = self.generateDatapointButton(i, self.generateDatapointLambda(i, 3, i, True), self.playerDataPoints[i][1])
+            btn = self.generateDatapointButton(i, self.generateDatapointLambda(i, 3, i, True), self.dreamDataPoints[i][1])
             self.common_buttons_layout.addWidget(btn)
         self.common_inner = QWidget()
         self.common_inner.setLayout(self.common_buttons_layout)
         self.commonScroll = QScrollArea()
         self.commonScroll.setWidgetResizable(True)
         self.commonScroll.setWidget(self.common_inner)
-        self.gridLayout.addWidget(self.commonScroll, 6, 1, 1, 8)
+        self.gridLayout.addWidget(self.commonScroll, 6, 0, 1, 10)
 
     def destroyCharts(self):
         self.chart.deleteLater()
 
     def renderCharts(self):
-        self.chart = ChartDataPoints(self.aggregate, self.playerDataPoints)
-        self.gridLayout.addWidget(self.chart, 7, 1, 10, 8)
+        self.chart = ChartDataPoints(self.aggregate1, self.dreamDataPoints, True, self.team1)
+        self.gridLayout.addWidget(self.chart, 8, 0, 10, 5)
+
+        self.chart2 = ChartDataPoints(self.aggregate2, self.dreamDataPoints, True, self.team2)
+        self.gridLayout.addWidget(self.chart2, 8, 5, 10, 6)
 
 
     def generateDatapointButton(self, text, onClick, enabled):
@@ -153,11 +170,11 @@ class PlayerWindow(QWidget):
 
         def lm():
             self.buttonState[id] = not self.buttonState[id]
-            for i in dataPointsWhere(self.playerDataPoints, index, isValue):
+            for i in dataPointsWhere(self.dreamDataPoints, index, isValue):
                 if toggleStatus:
-                    self.playerDataPoints[i][1] = self.buttonState[id]
+                    self.dreamDataPoints[i][1] = self.buttonState[id]
                 else:
-                    self.playerDataPoints[i][1] = changeStatusTo
+                    self.dreamDataPoints[i][1] = changeStatusTo
 
             self.destroyButtons()
             self.renderButtons()

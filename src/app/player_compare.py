@@ -6,8 +6,9 @@ from src.app.chart import ChartDataPoints
 from src.aggregate.player import fetch_and_aggregate_player
 from src.data.credentials import defaultDatabase
 
-class PlayerWindow(QWidget):
+class PlayerCompare(QWidget):
     selectedName = ""
+    selectedName2 = ""
     playerDataPoints = dict(dataPoints)
     buttonState = {}
 
@@ -15,11 +16,16 @@ class PlayerWindow(QWidget):
         super().__init__()
 
         self.selectedName = selectedNames[0]
-        self.aggregate = fetch_and_aggregate_player(self.selectedName, defaultDatabase(), startDates[0], end=endDates[0])
+        self.aggregate = fetch_and_aggregate_player(self.selectedName, defaultDatabase(), start=startDates[0], end=endDates[0])
+
+        self.selectedName2 = selectedNames[1]
+        self.aggregate2 = fetch_and_aggregate_player(self.selectedName2, defaultDatabase(), start=startDates[1], end=endDates[1])
+
         self.dateRangeText = " (" + startDates[0] + " - " + endDates[0] + ")"
+        self.dateRangeText2 = " (" + startDates[1] + " - " + endDates[1] + ")"
 
         # CONFIG
-        self.setWindowTitle(selectedNames[0])
+        self.setWindowTitle(" vs ".join(selectedNames))
         size = getScreenSize()
         self.resize(size[0]*0.8, size[1]*1)
 
@@ -27,9 +33,10 @@ class PlayerWindow(QWidget):
         self.gridLayout = QGridLayout()
         self.setLayout(self.gridLayout)
 
-        self.gridLayout.setRowStretch(7, 100000)
+        self.gridLayout.setRowStretch(8, 100000)
+        self.gridLayout.setColumnStretch(6, 1.2)
 
-        if self.aggregate != {}:
+        if self.aggregate != {} and self.aggregate2 != {}:
             self.renderBase()
             self.renderButtons()
             self.renderCharts()
@@ -39,10 +46,20 @@ class PlayerWindow(QWidget):
 
     def renderBase(self):
         # Create a label to display the text
-        label = QLabel(self.selectedName + self.dateRangeText)
-        label.setStyleSheet("font: bold 36px;")
+        label = QLabel("Comparing " + self.selectedName + " and " + self.selectedName2)
+        label.setStyleSheet("font: bold 30px;")
         label.setContentsMargins(10, 10, 10, 16)
-        self.gridLayout.addWidget(label, 1, 1)
+        self.gridLayout.addWidget(label, 1, 0)
+
+        label1 = QLabel(self.selectedName + self.dateRangeText)
+        label1.setStyleSheet("font: bold 16px;")
+        label1.setContentsMargins(10, 10, 10, 16)
+        self.gridLayout.addWidget(label1, 7, 0)
+
+        label2 = QLabel(self.selectedName2 + self.dateRangeText2)
+        label2.setStyleSheet("font: bold 16px;")
+        label2.setContentsMargins(10, 10, 10, 16)
+        self.gridLayout.addWidget(label2, 7, 5)
 
     def destroyButtons(self):
         self.cat_buttons_layout.deleteLater()
@@ -78,7 +95,7 @@ class PlayerWindow(QWidget):
         self.cat_buttons_layout.addWidget(bowling_button)
         common_button = self.generateDatapointButton("Common", self.generateDatapointLambda("common", 0, "common", True), self.buttonState["common"])
         self.cat_buttons_layout.addWidget(common_button)
-        self.gridLayout.addLayout(self.cat_buttons_layout, 3, 1, 1, 8)
+        self.gridLayout.addLayout(self.cat_buttons_layout, 3, 0, 1, 10)
 
         # BATTING
         self.batting_buttons_layout = QHBoxLayout()
@@ -92,7 +109,7 @@ class PlayerWindow(QWidget):
         self.battingScroll = QScrollArea()
         self.battingScroll.setWidgetResizable(True)
         self.battingScroll.setWidget(self.battingInner)
-        self.gridLayout.addWidget(self.battingScroll, 4, 1, 1, 8)
+        self.gridLayout.addWidget(self.battingScroll, 4, 0, 1, 10)
 
         # BOWLING
         self.bowling_buttons_layout = QHBoxLayout()
@@ -106,7 +123,7 @@ class PlayerWindow(QWidget):
         self.bowlingScroll = QScrollArea()
         self.bowlingScroll.setWidgetResizable(True)
         self.bowlingScroll.setWidget(self.bowling_inner)
-        self.gridLayout.addWidget(self.bowlingScroll, 5, 1, 1, 8)
+        self.gridLayout.addWidget(self.bowlingScroll, 5, 0, 1, 10)
 
         # COMMON
         self.common_buttons_layout = QHBoxLayout()
@@ -120,14 +137,17 @@ class PlayerWindow(QWidget):
         self.commonScroll = QScrollArea()
         self.commonScroll.setWidgetResizable(True)
         self.commonScroll.setWidget(self.common_inner)
-        self.gridLayout.addWidget(self.commonScroll, 6, 1, 1, 8)
+        self.gridLayout.addWidget(self.commonScroll, 6, 0, 1, 10)
 
     def destroyCharts(self):
         self.chart.deleteLater()
 
     def renderCharts(self):
         self.chart = ChartDataPoints(self.aggregate, self.playerDataPoints)
-        self.gridLayout.addWidget(self.chart, 7, 1, 10, 8)
+        self.gridLayout.addWidget(self.chart, 8, 0, 10, 5)
+
+        self.chart2 = ChartDataPoints(self.aggregate2, self.playerDataPoints)
+        self.gridLayout.addWidget(self.chart2, 8, 5, 10, 6)
 
 
     def generateDatapointButton(self, text, onClick, enabled):

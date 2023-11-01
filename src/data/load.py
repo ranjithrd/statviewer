@@ -130,7 +130,6 @@ def addValues(folderOutput):
             i["match_id"], i["date"], i["year"], i["number"], i["winner"]))
 
     for i in folderOutput["teamMatches"]:
-        # print(i)
         cursor.execute("""INSERT INTO teamMatches VALUES ('{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {})"""
                        .format(
                            i["team_match_id"],
@@ -154,7 +153,6 @@ def addValues(folderOutput):
                        ))
 
     for i in folderOutput["playerMatches"]:
-        # print(i)
         cursor.execute("""INSERT INTO playerMatches VALUES ('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"""
                        .format(
                            i["player_match_id"],
@@ -178,13 +176,10 @@ def addValues(folderOutput):
                        ))
 
     for i in folderOutput["performances"]:
-        # print(i)
         cursor.execute("""INSERT INTO performances VALUES('{}', '{}', '{}', '{}')""".format(
             i["performance_id"], i["team"], i["year"], i["player"]))
 
     db.commit()
-
-    print("Added values")
 
 
 def clearValues():
@@ -198,8 +193,6 @@ def clearValues():
 
     db.commit()
 
-    print("Deleted all values")
-
 
 def dropTables():
     db = defaultDatabase()
@@ -211,6 +204,7 @@ def dropTables():
     cursor.execute("DROP TABLE IF EXISTS matches;")
     cursor.execute("DROP TABLE IF EXISTS years;")
     cursor.execute("DROP TABLE IF EXISTS players;")
+    cursor.execute("DROP TABLE IF EXISTS teams;")
 
 
 def resetDatabase(p):
