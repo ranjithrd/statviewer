@@ -1,5 +1,4 @@
 import json
-import mysql.connector as mysql
 from src.data.parse import importJSON
 from src.data.credentials import defaultDatabase
 from src.aggregate.utils.utils import allTeamMatchRecordToDictionary, allPlayerMatchRecordToDictionary

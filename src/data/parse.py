@@ -1,4 +1,3 @@
-import mysql.connector as mysql
 import pathlib
 import json
 

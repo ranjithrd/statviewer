@@ -1,4 +1,3 @@
-import mysql.connector as mysql
 from src.aggregate.utils.utils import *
 import src.aggregate.functions.batting as batting
 import src.aggregate.functions.bowling as bowling
