@@ -9,7 +9,7 @@ Use this branch only if you want this specific setup of the database. (IPL data 
 1. Download/clone this repository (click `Code` > `Download ZIP` and then expand the ZIP).
 **Make sure you are on the "easy" branch.**
 
-2. Install packages with `pip install pyside6 sqlite3` or `pip3 install pyside6 sqlite3`. Run these commands anywhere from the `cmd` app on Windows or `Terminal` on MacOS.
+2. Install packages with `pip install pyside6` or `pip3 install pyside6`. Run these commands anywhere from the `cmd` app on Windows or `Terminal` on MacOS.
 
 3. Run `data.py` from the code you downloaded.
 
@@ -22,4 +22,4 @@ Use this branch only if you want this specific setup of the database. (IPL data 
 
 - Tested with **Python 3.1**
 
-- PIP Packages **(`pyside6`, `mysql-connector-python`, `sqlite3`)**
+- PIP Packages **(`pyside6`, `mysql-connector-python`, `sqlite3`)**. `sqlite3` comes in-built with Python in the latest versions.
