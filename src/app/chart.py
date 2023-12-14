@@ -143,7 +143,7 @@ class ChartDataPoints(QScrollArea):
                         if l in value:
                             graphData.append((split_seasons_convert_to[m], value[l]))
 
-                    if len(value) > 1:
+                    if len(value) < 2:
                         self.tooLittleDataDisclaimer = True
                         continue
 

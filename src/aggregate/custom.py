@@ -33,22 +33,12 @@ def aggregate_custom_team(matches):
         "total_matches_won": 0,
     })
 
-    # def percentage_matches(m):
-    #     total_matches = 0
-    #     won = 0
-    #     for i in m:
-    #         total_matches += 1
-    #         won += int(i["win"])
-
-    #     return round(100 * won / total_matches, 2)
-
     for i in matches:
         if i["win"]:
             avg["total_matches_won"] += 1
 
     avg.update({
         "percentage_matches_won": round(100 * (avg["total_matches_won"] / avg["total_matches_played"])),
-        # "percentage_matches_won_split_seasons": splitAcrossSeasons(percentage_matches, matches)
     })
 
     return avg
