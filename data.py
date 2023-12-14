@@ -24,7 +24,7 @@ def main():
     print("D\t Initialize database and add tables without adding data")
     print()
     print()
-    print("E\t Automatic Setup (get the latest data and load it - NOT SUPPORTED)")
+    print("E\t Automatic Setup (get the latest data and load it - DATA AS OF 12/14/2023)")
 
     print("\n")
     c = input("Choice: ").lower().strip()[0]
@@ -44,7 +44,7 @@ def main():
         initializeDatabase()
 
     if c == "e":
-        folderPath = input("Enter path to DOWNLOADED CRICSHEET JSON DATA FOLDER: ")
+        folderPath = "latest_sample_data"
         resetDatabase(folderPath.strip())
 
     print("\nEXITING.")

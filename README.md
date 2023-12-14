@@ -1,40 +1,25 @@
-## Prerequisites
+## NOTE
 
-- Python 3.1
+This branch does not use MySQL; instead it uses SQLite3 and uses inbuilt data. Please use the main branch for mysql or the sqlite branch for sqlite code.
 
-- MySQL (installation [instructions link](https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html)). **Make sure to set password to mysql123**.
-
-- PySide 6 (install by `pip install pyside6`)
-
-- MySQL Python Connector (install by `pip install mysql-connector-python`)
-
+Use this branch only if you want this specific setup of the database. (IPL data as of 12/14/2023).
 
 ## INSTALLING AND RUNNING
 
 1. Download/clone this repository (click `Code` > `Download ZIP` and then expand the ZIP).
+**Make sure you are on the "easy" branch.**
 
-2. Download data from [this link](https://cricsheet.org/downloads/ipl_json.zip) and save it into a folder and copy its path.
+2. Install packages with `pip install pyside6 mysql-connector-python sqlite3` or `pip3 install pyside6 mysql-connector-python sqlite3`. Run these commands anywhere from the `cmd` app on Windows or `Terminal` on MacOS.
 
 3. Run `data.py` from the code you downloaded.
 
-4. Follow the instructions on-screen (including setting your MySQL database credentials and creating a MySQL database).
+4. Choose option `E` and the database will automatically be set up with IPL data as of 12/14/2023.
 
-5. Choose option A and enter the path to the folder that you downloaded with the cricket data.
+5. **To use the application, run gui.py.**
 
-6. **To use the application, run gui.py.**
 
-## BUNDLING (not working)
+## Prerequisites
 
-Mac:
+- Tested with **Python 3.1**
 
-```
-pyinstaller --add-data fonts:fonts -w gui.py -n Criceval
-pyinstaller -c data.py -n Criceval_Data
-```
-
-## TEST CRICKET DATA
-
-https://cricsheet.org/downloads/ipl_json.zip
-
-Download into this folder as latest_sample_data.
-Run init.py.
+- PIP Packages **(`pyside6`, `mysql-connector-python`, `sqlite3`)**
