@@ -6,8 +6,8 @@ Use this branch only if you want this specific setup of the database. (IPL data 
 
 ## INSTALLING AND RUNNING
 
-1. Download/clone this repository (click `Code` > `Download ZIP` and then expand the ZIP).
-**Make sure you are on the "easy" branch.**
+1. Download/clone this repository (click `Code` > `Download ZIP` and then UNZIP the download).
+**Make sure you are on the "easy" branch (the zip will be called `statviewer-easy.zip`).**
 
 2. Install packages with `pip install pyside6` or `pip3 install pyside6`. Run these commands anywhere from the `cmd` app on Windows or `Terminal` on MacOS.
 
@@ -15,7 +15,7 @@ Use this branch only if you want this specific setup of the database. (IPL data 
 
 4. Choose option `E` and the database will automatically be set up with IPL data as of 12/14/2023.
 
-5. **To use the application, run gui.py.**
+5. **To use the application, run `gui.py` which is in the folder that you have unzipped.**
 
 
 ## Prerequisites
