@@ -6,20 +6,24 @@ Use this branch only if you want this specific setup of the database. (IPL data 
 
 ## INSTALLING AND RUNNING
 
-1. Download/clone this repository (click `Code` > `Download ZIP` and then UNZIP the download).
+1. Install SQLite3. [Windows Tutorial](https://www.guru99.com/download-install-sqlite.html)
+
+2. Download/clone this repository (click `Code` > `Download ZIP` and then UNZIP the download).
 **Make sure you are on the "easy" branch (the zip will be called `statviewer-easy.zip`).**
 
-2. Install packages with `pip install pyside6` or `pip3 install pyside6`. Run these commands anywhere from the `cmd` app on Windows or `Terminal` on MacOS.
+3. Install packages with `pip install pyside6 pyqtgraph` or `pip3 install pyside6 pyqtgraph`. Run these commands anywhere from the `cmd` app on Windows or `Terminal` on MacOS.
 
-3. Run `data.py` from the code you downloaded.
+4. Run `data.py` from the code you downloaded.
 
-4. Choose option `E` and the database will automatically be set up with IPL data as of 12/14/2023.
+5. Choose option `E` and the database will automatically be set up with IPL data as of 12/14/2023.
 
-5. **To use the application, run `gui.py` which is in the folder that you have unzipped.**
+6. **To use the application, run `gui.py` which is in the folder that you have unzipped.**
 
 
 ## Prerequisites
 
 - Tested with **Python 3.1**
 
-- PIP Packages **(`pyside6`, `mysql-connector-python`, `sqlite3`)**. `sqlite3` comes in-built with Python in the latest versions.
+- PIP Packages **(`pyside6`, `mysql-connector-python`, `sqlite3`, `pyqtgraph`)**. `sqlite3` comes in-built with Python in the latest versions.
+
+- **SQLite** [Installing on Windows](https://www.guru99.com/download-install-sqlite.html)
