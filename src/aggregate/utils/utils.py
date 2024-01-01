@@ -1,4 +1,5 @@
 import json
+from src.constants import order
 
 def teamMatchRecordToDictionary(i):
     return {
@@ -59,26 +60,8 @@ def allPlayerMatchRecordToDictionary(i):
     return a
 
 def matchingYears(start_year, duration = 1, end_year = "", ignoreEndYear = False):
-    order = {
-        1: "2007/08",
-        2: "2009",
-        3: "2009/10",
-        4: "2011",
-        5: "2012",
-        6: "2013",
-        7: "2014",
-        8: "2015",
-        9: "2016",
-        10: "2017",
-        11: "2018",
-        12: "2019",
-        13: "2020/21",
-        14: "2021",
-        15: "2022",
-        16: "2023",
-    }
-
     orderInverse = {}
+    print(order)
     for i in order:
         orderInverse[order[i]] = i
 

@@ -6,3 +6,6 @@ build
 dist
 *.spec
 *.db
+
+**/constants.json
+odis_male_json

@@ -1,48 +1,11 @@
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QWidget, QLineEdit, QGridLayout, QWidget, QListWidget, QLabel, QPushButton, QScrollArea, QFrame, QButtonGroup, QVBoxLayout
 from src.aggregate.data_points import dataPointsWhere
 import pyqtgraph as pg
-
-order = {
-    1: "2007/08",
-    2: "2009",
-    3: "2009/10",
-    4: "2011",
-    5: "2012",
-    6: "2013",
-    7: "2014",
-    8: "2015",
-    9: "2016",
-    10: "2017",
-    11: "2018",
-    12: "2019",
-    13: "2020/21",
-    14: "2021",
-    15: "2022",
-    16: "2023"
-}
+from src.constants import order, split_seasons_convert_to
 
 orderInverse = {}
 for i, j in order.items():
     orderInverse[j] = i
-
-split_seasons_convert_to = {
-    1: 2007,
-    2: 2009,
-    3: 2010,
-    4: 2011,
-    5: 2012,
-    6: 2013,
-    7: 2014,
-    8: 2015,
-    9: 2016,
-    10: 2017,
-    11: 2018,
-    12: 2019,
-    13: 2020,
-    14: 2021,
-    15: 2022,
-    16: 2023
-}
 
 class W(QWidget):
     def __init__(self, x, y, isBar=False):

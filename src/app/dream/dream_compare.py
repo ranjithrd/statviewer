@@ -5,6 +5,7 @@ from src.app.utils import getScreenSize
 from src.app.chart import ChartDataPoints
 from src.aggregate.custom import fetch_and_aggregate_custom_team
 from src.data.credentials import defaultDatabase
+from src.constants import defaultEnd, defaultStart
 
 class DreamCompareWindow(QWidget):
     selectedName = ""
@@ -18,8 +19,8 @@ class DreamCompareWindow(QWidget):
         self.team1 = team1
         self.team2 = team2
 
-        self.aggregate1 = fetch_and_aggregate_custom_team(team1, defaultDatabase(), start="2007/08", end="2023")
-        self.aggregate2 = fetch_and_aggregate_custom_team(team2, defaultDatabase(), start="2007/08", end="2023")
+        self.aggregate1 = fetch_and_aggregate_custom_team(team1, defaultDatabase(), start=defaultStart, end=defaultEnd)
+        self.aggregate2 = fetch_and_aggregate_custom_team(team2, defaultDatabase(), start=defaultStart, end=defaultEnd)
 
         # CONFIG
         self.setWindowTitle("Compare Teams")

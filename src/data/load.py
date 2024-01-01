@@ -122,6 +122,8 @@ def addValues(folderOutput):
         cursor.execute("""INSERT INTO years VALUES ('{}');""".format(i))
 
     for i in folderOutput["players"]:
+        # n = i.replace("'", r"''")
+        # print(n)
         cursor.execute("""INSERT INTO players VALUES ('{}');""".format(i))
 
     for i in folderOutput["metadata"]:
@@ -147,7 +149,7 @@ def addValues(folderOutput):
                            json.dumps(i["balls_wickets"]),
                            json.dumps(i["fall_of_wickets"]),
                            i["over_count"],
-                           i["city"],
+                           i["city"].replace("'", " "),
                            1 if i["toss_won"] else 0
                        ))
 
@@ -206,12 +208,12 @@ def dropTables():
     cursor.execute("DROP TABLE IF EXISTS teams;")
 
 
-def resetDatabase(p):
+def resetDatabase(p, shouldTrustData = False):
     dropTables()
     initializeDatabase()
 
     clearValues()
-    addValues(importJSON(p))
+    addValues(importJSON(p, True))
 
 
 def allData():

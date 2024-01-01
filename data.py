@@ -24,7 +24,8 @@ def main():
     print("D\t Initialize database and add tables without adding data")
     print()
     print()
-    print("E\t Automatic Setup (get the latest data and load it - DATA AS OF 12/14/2023)")
+    print("E\t Automatic Setup IPL (get the latest data and load it - DATA AS OF 12/14/2023)")
+    print("F\t Automatic Setup ODI (get the latest data and load it - DATA AS OF 12/14/2023)")
 
     print("\n")
     c = input("Choice: ").lower().strip()[0]
@@ -46,6 +47,13 @@ def main():
     if c == "e":
         folderPath = "latest_sample_data"
         resetDatabase(folderPath.strip())
+
+        f = open("constants.json", "w")
+        f.close()
+
+    if c == "f":
+        folderPath = "odis_male_json"
+        resetDatabase(folderPath.strip(), True)
 
     print("\nEXITING.")
     print("Open the app or RUN gui.py to see statistics.")

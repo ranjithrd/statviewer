@@ -4,37 +4,50 @@ import json
 db = None  # type: mysql.MySQLConnection
 
 TeamNames = {
-    'Chennai Super Kings': 'CSK',
-    'Rajasthan Royals': 'RR',
-    'Mumbai Indians': 'MI',
-    'Delhi Capitals': 'DC',
-    'Delhi Daredevils': 'DC',
-    'Kings XI Punjab': 'KXIP',
-    'Kochi Tuskers Kerala': 'KTK',
-    'Royal Challengers Bangalore': 'RCB',
-    'Rising Pune Supergiants': 'RPS',
-    'Kolkata Knight Riders': 'KKR',
-    'Pune Warriors': 'RPS',
-    'Deccan Chargers': 'SRH',
-    'Sunrisers Hyderabad': 'SRH',
-    'Punjab Kings': 'KXIP',
-    'Gujarat Lions': 'GT',
-    'Gujarat Titans': 'GT',
-    'Lucknow Super Giants': 'LSG',
-    'Rising Pune Supergiant': 'RPS'
+    "Chennai Super Kings": "CSK",
+    "Rajasthan Royals": "RR",
+    "Mumbai Indians": "MI",
+    "Delhi Capitals": "DC",
+    "Delhi Daredevils": "DC",
+    "Kings XI Punjab": "KXIP",
+    "Kochi Tuskers Kerala": "KTK",
+    "Royal Challengers Bangalore": "RCB",
+    "Rising Pune Supergiants": "RPS",
+    "Kolkata Knight Riders": "KKR",
+    "Pune Warriors": "RPS",
+    "Deccan Chargers": "SRH",
+    "Sunrisers Hyderabad": "SRH",
+    "Punjab Kings": "KXIP",
+    "Gujarat Lions": "GT",
+    "Gujarat Titans": "GT",
+    "Lucknow Super Giants": "LSG",
+    "Rising Pune Supergiant": "RPS",
 }
 
 CityNamesOverrides = {
     "Bengaluru": "Bangalore",
     "Dubai International Cricket Stadium": "Dubai",
-    "Sharjah Cricket Stadium": "Sharjah"
+    "Sharjah Cricket Stadium": "Sharjah",
 }
 
-def parseMatch(match):
+
+def parseMatch(match, shouldTrustData=False):
+    global TeamNames
+
     matchPlayers = match["info"]["players"]
     teams = list(matchPlayers.keys())
 
     identifier = ""
+
+    if "event" not in match["info"] and shouldTrustData:
+        return {}, {}, {}
+
+    if shouldTrustData:
+        match["info"]["event"] = {
+            # "stage": match["info"]["city"],
+            "stage": "-".join(sorted(teams)),
+        }
+
     if "stage" in match["info"]["event"]:
         identifier = match["info"]["event"]["stage"]
     elif "match_number" in match["info"]["event"]:
@@ -43,7 +56,10 @@ def parseMatch(match):
         print("NO VALID ID FOR MATCH")
 
     winner = ""
-    if "result" in match["info"]["outcome"] and match["info"]["outcome"]["result"] in "tie no result":
+    if (
+        "result" in match["info"]["outcome"]
+        and match["info"]["outcome"]["result"] in "tie no result"
+    ):
         winner = ""
     elif "winner" in match["info"]["outcome"]:
         winner = match["info"]["outcome"]["winner"]
@@ -63,31 +79,41 @@ def parseMatch(match):
         "teams": teams,
     }
 
+    if shouldTrustData:
+        metadata["year"] = match["info"]["dates"][0][:4]
+
     if metadata["city"] in CityNamesOverrides:
         metadata["city"] = CityNamesOverrides[metadata["city"]]
 
-    metadata["match_id"] = str(metadata["year"]) + \
-        "." + str(metadata["number"]) + "." + str(metadata["date"])
+    metadata["match_id"] = (
+        str(metadata["year"])
+        + "."
+        + str(metadata["number"])
+        + "."
+        + str(metadata["date"])
+    )
 
     PerformanceDefault = {
         "total_bat": 0,
         "total_cede": 0,
         "total_wickets": 0,
-
         "overs_bat": [],
         "overs_cede": [],
         "overs_wickets": [],
-
         "balls_bat": [],
         "balls_cede": [],
         "balls_wickets": [],
-
         "fall_of_wickets": [],
-
         "win": False,
-
-        "over_count": 0
+        "over_count": 0,
     }
+
+    newMatchPlayers = {}
+    for i in matchPlayers:
+        newMatchPlayers[i] = {}
+        for j in matchPlayers[i]:
+            newMatchPlayers[i][j.replace("'", " ")] = {}
+    matchPlayers = newMatchPlayers
 
     teamPerformance = {}
     playerPerformance = {}
@@ -122,8 +148,11 @@ def parseMatch(match):
                 totalRuns = delivery["runs"]["total"]
                 batterRuns = delivery["runs"]["batter"]
 
-                batter = delivery["batter"]
-                bowler = delivery["bowler"]
+                batter = delivery["batter"].replace("'", " ")
+                bowler = delivery["bowler"].replace("'", " ")
+
+                if batter not in playerPerformance or bowler not in playerPerformance:
+                    print(batter, bowler, playerPerformance)
 
                 if batter not in overBatting:
                     overBatting[batter] = 0
@@ -168,7 +197,7 @@ def parseMatch(match):
 
                     overWicketsBatters += 1
 
-                    player_out = delivery["wickets"][0]["player_out"]
+                    player_out = delivery["wickets"][0]["player_out"].replace("'", " ")
                     if player_out not in overWicketsPlayers:
                         overWicketsPlayers[player_out] = 0
                     overWicketsPlayers[player_out] += 1
@@ -186,11 +215,9 @@ def parseMatch(match):
                 playerPerformance[p]["overs_wickets"].append(overWickets[p])
 
             for p in overWicketsPlayers:
-                playerPerformance[p]["fall_of_wickets"].append(
-                    overWicketsPlayers[p])
+                playerPerformance[p]["fall_of_wickets"].append(overWicketsPlayers[p])
 
-            teamPerformance[battingTeam]["fall_of_wickets"].append(
-                overWicketsBatters)
+            teamPerformance[battingTeam]["fall_of_wickets"].append(overWicketsBatters)
             teamPerformance[battingTeam]["overs_bat"].append(teamBat)
             teamPerformance[bowlingTeam]["overs_cede"].append(teamCede)
             teamPerformance[bowlingTeam]["overs_wickets"].append(teamWickets)
@@ -201,13 +228,19 @@ def parseMatch(match):
             playerPerformance[i]["win"] = True
 
     for i in playerPerformance:
+        if shouldTrustData:
+            t = playerPerformance[i]["team"]
+            if t not in TeamNames:
+                TeamNames[t] = t
+
         playerPerformance[i]["team"] = TeamNames[playerPerformance[i]["team"]]
         playerPerformance[i]["player"] = i
         playerPerformance[i]["year"] = metadata["year"]
         playerPerformance[i]["match_id"] = metadata["match_id"]
         p = playerPerformance[i]
-        playerPerformance[i]["performance_id"] = p["team"] + \
-            "." + p["player"] + "." + p["year"]
+        playerPerformance[i]["performance_id"] = (
+            p["team"] + "." + p["player"] + "." + p["year"]
+        )
         playerPerformance[i]["player_match_id"] = metadata["match_id"] + "." + i
 
     for i in matchPlayers[battingTeam]:
@@ -224,18 +257,33 @@ def parseMatch(match):
         namedTeamPerformances[TeamNames[i]]["year"] = metadata["year"]
         namedTeamPerformances[TeamNames[i]]["match_id"] = metadata["match_id"]
         namedTeamPerformances[TeamNames[i]]["city"] = metadata["city"]
-        namedTeamPerformances[TeamNames[i]
-                              ]["team_match_id"] = metadata["match_id"] + "." + TeamNames[i]
+        namedTeamPerformances[TeamNames[i]]["team_match_id"] = (
+            metadata["match_id"] + "." + TeamNames[i]
+        )
 
     if metadata["winner"] != "":
         metadata["winner"] = TeamNames[metadata["winner"]]
 
-    return (metadata, list(namedTeamPerformances.values()), list(playerPerformance.values()))
+    return (
+        metadata,
+        list(namedTeamPerformances.values()),
+        list(playerPerformance.values()),
+    )
 
 
-def importJSON(path):
+def importJSON(path, canTrustData=False):
     global db
     global TeamNames
+
+    print(canTrustData)
+
+    if canTrustData:
+        TeamNames = {}
+        f = open("constants.json", "w")
+        f.write(
+            """{"numOvers": 66, "numBalls": 400, "defaultStart": "2002", "defaultEnd": "2023", "order": {"1": "2002", "2": "2003", "3": "2004", "4": "2005", "5": "2006", "6": "2007", "7": "2008", "8": "2009", "9": "2010", "10": "2011", "11": "2012", "12": "2013", "13": "2014", "14": "2015", "15": "2016", "16": "2017", "17": "2018", "18": "2019", "19": "2020", "20": "2021", "21": "2022", "22": "2023"}, "split_seasons_convert_to": {"1": 2002, "2": 2003, "3": 2004, "4": 2005, "5": 2006, "6": 2007, "7": 2008, "8": 2009, "9": 2010, "10": 2011, "11": 2012, "12": 2013, "13": 2014, "14": 2015, "15": 2016, "16": 2017, "17": 2018, "18": 2019, "19": 2020, "20": 2021, "21": 2022, "22": 2023}}"""
+        )
+        f.close()
 
     files = pathlib.Path(path)
 
@@ -253,11 +301,23 @@ def importJSON(path):
         contents = json.loads(fileData.read())
         fileData.close()
 
-        metadata, fileTeamPerf, filePlayerPerf = parseMatch(contents)
+        metadata, fileTeamPerf, filePlayerPerf = parseMatch(contents, True)
+
+        if metadata == {}:
+            continue
+
         matchMetadata.append(metadata)
         matchIds.append(metadata["match_id"])
         matchTeamPerformances.extend(fileTeamPerf)
         matchPlayerPerformances.extend(filePlayerPerf)
+
+    # if canTrustData:
+    #     for i in matchMetadata:
+    #         for j in i["teams"]:
+    #             if j not in TeamNames:
+    #                 TeamNames[j] = j
+
+    #     print(TeamNames)
 
     performancesDict = {}
     for i in matchPlayerPerformances:
@@ -268,7 +328,7 @@ def importJSON(path):
                 "team": i["team"],
                 "player": i["player"],
                 "year": i["year"],
-                "matches": [i["match_id"]]
+                "matches": [i["match_id"]],
             }
         else:
             performancesDict[key]["matches"].append(i["match_id"])
@@ -298,5 +358,5 @@ def importJSON(path):
         "metadata": matchMetadata,
         "teamMatches": matchTeamPerformances,
         "playerMatches": matchPlayerPerformances,
-        "performances": performances
+        "performances": performances,
     }

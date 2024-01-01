@@ -4,6 +4,8 @@ import src.aggregate.functions.bowling as bowling
 import src.aggregate.utils.percentile as percentile
 from src.aggregate.utils.split_seasons import generateDataPoints, splitAcrossSeasons
 from src.data.load import allData
+from src.constants import defaultEnd, defaultStart, numBalls, numOvers
+
 
 def aggregate_team(matches):
     print(len(matches))
@@ -23,15 +25,15 @@ def aggregate_team(matches):
         "recorded_matches": len(matches),
         "wickets_as_of_ball": [0],
         "bat_as_of_ball": [0],
-        "cede_as_of_ball": [0]
+        "cede_as_of_ball": [0],
     }
 
-    for _ in range(30):
+    for _ in range(numOvers):
         avg["overs_bat_avg"].append(0)
         avg["overs_cede_avg"].append(0)
         avg["overs_wickets_sum"].append(0)
 
-    for _ in range(200):
+    for _ in range(numBalls):
         avg["balls_bat_avg"].append(0)
         avg["balls_cede_avg"].append(0)
         avg["balls_wickets_sum"].append(0)
@@ -83,57 +85,65 @@ def aggregate_team(matches):
         avg["overs_cede_avg"][i] /= len(matches)
 
     for i in range(len(avg["balls_bat_avg"])):
-        avg["balls_bat_avg"][i] /= 120
+        avg["balls_bat_avg"][i] /= numBalls
 
     for i in range(len(avg["balls_cede_avg"])):
-        avg["balls_cede_avg"][i] /= 120
+        avg["balls_cede_avg"][i] /= numBalls
 
     for i in range(len(avg["balls_wickets_avg"])):
         avg["balls_wickets_avg"][i] /= len(matches)
 
-    for j in range(200):
+    for j in range(numBalls):
         avg["wickets_as_of_ball"].append(
-            avg["wickets_as_of_ball"][-1] + round(avg["balls_wickets_avg"][j], 2))
+            avg["wickets_as_of_ball"][-1] + round(avg["balls_wickets_avg"][j], 2)
+        )
 
-    for j in range(200):
+    for j in range(numBalls):
         avg["bat_as_of_ball"].append(
-            avg["bat_as_of_ball"][-1] + round(avg["balls_bat_avg"][j], 2))
-    
-    for j in range(200):
+            avg["bat_as_of_ball"][-1] + round(avg["balls_bat_avg"][j], 2)
+        )
+
+    for j in range(numBalls):
         avg["cede_as_of_ball"].append(
-            avg["cede_as_of_ball"][-1] + round(avg["cede_as_of_ball"][j], 2))
+            avg["cede_as_of_ball"][-1] + round(avg["cede_as_of_ball"][j], 2)
+        )
 
     ad = groupByTeams(allData()).values()
 
     # bowling stats
-    avg.update(generateDataPoints(bowling.strike_rate,
-               matches, "bowling_strike_rate", ad))
-    avg.update(generateDataPoints(
-        bowling.economy, matches, "bowling_economy", ad))
-    avg.update(generateDataPoints(
-        bowling.average, matches, "bowling_average", ad))
-    avg.update(generateDataPoints(bowling.runs_conceded,
-               matches, "bowling_runs_conceded", ad))
-    avg.update(generateDataPoints(bowling.wickets_taken,
-               matches, "bowling_wickets_taken", ad))
+    avg.update(
+        generateDataPoints(bowling.strike_rate, matches, "bowling_strike_rate", ad)
+    )
+    avg.update(generateDataPoints(bowling.economy, matches, "bowling_economy", ad))
+    avg.update(generateDataPoints(bowling.average, matches, "bowling_average", ad))
+    avg.update(
+        generateDataPoints(bowling.runs_conceded, matches, "bowling_runs_conceded", ad)
+    )
+    avg.update(
+        generateDataPoints(bowling.wickets_taken, matches, "bowling_wickets_taken", ad)
+    )
 
     # batting stats
-    avg.update(generateDataPoints(batting.run_rate,
-               matches, "batting_run_rate", ad))
-    avg.update(generateDataPoints(batting.strike_rate,
-               matches, "batting_strike_rate", ad))
-    avg.update(generateDataPoints(
-        batting.batting_average, matches, "batting_average", ad))
-    avg.update(generateDataPoints(batting.runs_scored,
-               matches, "batting_runs_scored", ad))
-    
+    avg.update(generateDataPoints(batting.run_rate, matches, "batting_run_rate", ad))
+    avg.update(
+        generateDataPoints(batting.strike_rate, matches, "batting_strike_rate", ad)
+    )
+    avg.update(
+        generateDataPoints(batting.batting_average, matches, "batting_average", ad)
+    )
+    avg.update(
+        generateDataPoints(batting.runs_scored, matches, "batting_runs_scored", ad)
+    )
+
     # match statistics
-    avg.update({
-        "total_matches_played": len(matches),
-        "total_matches_won": 0,
-        "percentage_matches_won_city": {},
-        "matches_played_city": {}
-    })
+    avg.update(
+        {
+            "total_matches_played": len(matches),
+            "total_matches_won": 0,
+            "percentage_matches_won_city": {},
+            "matches_played_city": {},
+        }
+    )
 
     def percentage_matches(m):
         total_matches = 0
@@ -152,17 +162,23 @@ def aggregate_team(matches):
             toss_won += int(i["toss_won"])
 
         return round(100 * toss_won / total_matches, 2)
-    
+
     def percentage_when_matches_lost(m):
         return 100 - percentage_when_matches_won(m)
-    
-    avg.update({
-        "percentage_matches_won_toss_won": percentage_when_matches_won(matches),
-        "percentage_matches_won_toss_won_split_seasons": splitAcrossSeasons(percentage_when_matches_won, matches),
-        "percentage_matches_won_toss_lost": percentage_when_matches_lost(matches),
-        "percentage_matches_won_toss_lost_split_seasons": splitAcrossSeasons(percentage_when_matches_lost, matches)
-    })
-        
+
+    avg.update(
+        {
+            "percentage_matches_won_toss_won": percentage_when_matches_won(matches),
+            "percentage_matches_won_toss_won_split_seasons": splitAcrossSeasons(
+                percentage_when_matches_won, matches
+            ),
+            "percentage_matches_won_toss_lost": percentage_when_matches_lost(matches),
+            "percentage_matches_won_toss_lost_split_seasons": splitAcrossSeasons(
+                percentage_when_matches_lost, matches
+            ),
+        }
+    )
+
     for i in matches:
         if i["city"] not in avg["percentage_matches_won_city"]:
             avg["percentage_matches_won_city"][i["city"]] = 0
@@ -175,12 +191,22 @@ def aggregate_team(matches):
             avg["percentage_matches_won_city"][i["city"]] += 1
 
     for i in avg["percentage_matches_won_city"]:
-        avg["percentage_matches_won_city"][i] = round(100 * (avg["percentage_matches_won_city"][i] / avg["matches_played_city"][i]), 2)
+        avg["percentage_matches_won_city"][i] = round(
+            100
+            * (avg["percentage_matches_won_city"][i] / avg["matches_played_city"][i]),
+            2,
+        )
 
-    avg.update({
-        "percentage_matches_won": round(100 * (avg["total_matches_won"] / avg["total_matches_played"]), 2),
-        "percentage_matches_won_split_seasons": splitAcrossSeasons(percentage_matches, matches)
-    })
+    avg.update(
+        {
+            "percentage_matches_won": round(
+                100 * (avg["total_matches_won"] / avg["total_matches_played"]), 2
+            ),
+            "percentage_matches_won_split_seasons": splitAcrossSeasons(
+                percentage_matches, matches
+            ),
+        }
+    )
 
     # record statistics
     def highest_score(m):
@@ -196,19 +222,17 @@ def aggregate_team(matches):
                 s.append(i["total_cede"])
         return min(s)
 
-    avg.update({
-        "highest_score": highest_score(matches),
-        "highest_score_split_seasons": splitAcrossSeasons(highest_score, matches),
-        "lowest_cede": lowest_cede(matches),
-        "lowest_cede_split_seasons": splitAcrossSeasons(lowest_cede, matches)
-    })
+    avg.update(
+        {
+            "highest_score": highest_score(matches),
+            "highest_score_split_seasons": splitAcrossSeasons(highest_score, matches),
+            "lowest_cede": lowest_cede(matches),
+            "lowest_cede_split_seasons": splitAcrossSeasons(lowest_cede, matches),
+        }
+    )
 
     # season statistics
-    avg.update({
-        "finals_qualified": 0,
-        "semifinals_qualified": 0,
-        "seasons_won": 0
-    })
+    avg.update({"finals_qualified": 0, "semifinals_qualified": 0, "seasons_won": 0})
 
     for i in matches:
         if "Qualifier" in i["match_id"]:
@@ -221,10 +245,13 @@ def aggregate_team(matches):
     return avg
 
 
-def fetch_and_aggregate_team(team, db, start="2007/08", duration=1, end="2023"):
+def fetch_and_aggregate_team(team, db, start=defaultStart, duration=1, end=defaultEnd):
     yearList = matchingYears(start, duration, end, ignoreEndYear=True)
-    teamQuery = """SELECT * FROM teamMatches WHERE team = '{0}' AND year IN {1};""".format(
-        team, yearList)
+    teamQuery = (
+        """SELECT * FROM teamMatches WHERE team = '{0}' AND year IN {1};""".format(
+            team, yearList
+        )
+    )
 
     c = db.cursor()
     c.execute(teamQuery)
@@ -238,7 +265,6 @@ def fetch_and_aggregate_team(team, db, start="2007/08", duration=1, end="2023"):
         else:
             print("ignored")
 
-        
     if len(vals) == 0:
         return {}
 

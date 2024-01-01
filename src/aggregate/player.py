@@ -4,6 +4,7 @@ import src.aggregate.functions.bowling as bowling
 import src.aggregate.utils.percentile as percentile
 from src.aggregate.utils.split_seasons import generateDataPoints, splitAcrossSeasons
 from src.data.load import allPlayers
+from src.constants import defaultStart, defaultEnd, numBalls, numOvers
 
 def aggregate_player(matches):
     print(len(matches), "matches")
@@ -26,12 +27,12 @@ def aggregate_player(matches):
         "cede_as_of_ball": [0]
     }
 
-    for _ in range(30):
+    for _ in range(numOvers):
         avg["overs_bat_avg"].append(0)
         avg["overs_cede_avg"].append(0)
         avg["overs_wickets_sum"].append(0)
 
-    for _ in range(200):
+    for _ in range(numBalls):
         avg["balls_bat_avg"].append(0)
         avg["balls_cede_avg"].append(0)
         avg["balls_wickets_sum"].append(0)
@@ -83,23 +84,23 @@ def aggregate_player(matches):
         avg["overs_cede_avg"][i] /= len(matches)
 
     for i in range(len(avg["balls_bat_avg"])):
-        avg["balls_bat_avg"][i] /= 120
+        avg["balls_bat_avg"][i] /= numBalls
 
     for i in range(len(avg["balls_cede_avg"])):
-        avg["balls_cede_avg"][i] /= 120
+        avg["balls_cede_avg"][i] /= numBalls
 
     for i in range(len(avg["balls_wickets_avg"])):
         avg["balls_wickets_avg"][i] /= len(matches)
 
-    for j in range(200):
+    for j in range(numBalls):
         avg["wickets_as_of_ball"].append(
             avg["wickets_as_of_ball"][-1] + round(avg["balls_wickets_avg"][j], 2))
 
-    for j in range(200):
+    for j in range(numBalls):
         avg["bat_as_of_ball"].append(
             avg["bat_as_of_ball"][-1] + round(avg["balls_bat_avg"][j], 2))
     
-    for j in range(200):
+    for j in range(numBalls):
         avg["cede_as_of_ball"].append(
             avg["cede_as_of_ball"][-1] + round(avg["cede_as_of_ball"][j], 2))
 
@@ -188,7 +189,7 @@ def aggregate_player(matches):
     return avg
 
 
-def fetch_and_aggregate_player(player, db, start="2007/08", duration=1, end="2023"):
+def fetch_and_aggregate_player(player, db, start=defaultStart, duration=1, end=defaultEnd):
     yearList = matchingYears(start, duration, end, ignoreEndYear=True)
     playerQuery = """SELECT * FROM playermatches WHERE player = '{0}' AND year IN {1};""".format(
         player, yearList)

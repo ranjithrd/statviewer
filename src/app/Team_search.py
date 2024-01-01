@@ -4,6 +4,7 @@ from src.data.metadata import dbTeams
 from src.app.team import TeamWindow
 from src.app.team_compare import TeamCompare
 from src.app.chart import order, orderInverse
+from src.constants import defaultEnd, defaultStart
 
 # Create a list of names
 names = dbTeams()
@@ -67,8 +68,8 @@ class TeamSearchNameWindow(QWidget):
         self.datesRendered = True
         global startDates, endDates
 
-        self.startDate = "2007/08"
-        self.endDate = "2023"
+        self.startDate = defaultStart
+        self.endDate = defaultEnd
 
         layout2 = QVBoxLayout()
 
@@ -81,7 +82,7 @@ class TeamSearchNameWindow(QWidget):
         combo_box.activated.connect(s)
         layout2.addWidget(combo_box)
 
-        combo_box.setCurrentText("2007/08")
+        combo_box.setCurrentText(defaultStart)
 
         layout2.addStretch(2)
 
@@ -94,7 +95,7 @@ class TeamSearchNameWindow(QWidget):
         combo_box2.activated.connect(s2)
         layout2.addWidget(combo_box2)
 
-        combo_box2.setCurrentText("2023")
+        combo_box2.setCurrentText(defaultEnd)
 
         layout2.addStretch(5)
 
@@ -104,8 +105,8 @@ class TeamSearchNameWindow(QWidget):
 
         self.mainLayout.addLayout(layout2)
 
-        self.startDate = "2007/08"
-        self.endDate = "2023"
+        self.startDate = defaultStart
+        self.endDate = defaultEnd
 
 
     def updateList(self):
