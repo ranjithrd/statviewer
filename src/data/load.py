@@ -213,7 +213,7 @@ def resetDatabase(p, shouldTrustData = False):
     initializeDatabase()
 
     clearValues()
-    addValues(importJSON(p, True))
+    addValues(importJSON(p, shouldTrustData))
 
 
 def allData():

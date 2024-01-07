@@ -277,6 +277,9 @@ def importJSON(path, canTrustData=False):
 
     print(canTrustData)
 
+    f = open("constants.json", "w")
+    f.close()
+
     if canTrustData:
         TeamNames = {}
         f = open("constants.json", "w")
